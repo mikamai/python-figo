@@ -694,6 +694,45 @@ class FigoSession(FigoObject):
 
         return catalog
 
+    def add_access(self, credentials):
+        catalog = self.get_catalog()
+        print "CATALOG:"
+        print "V0",catalog["banks"][0]#["access_methods"]["id"]
+        #access_method_id=catalog["access_method_id"]
+        #print "V2",catalog["banks"][0]["access_methods"]
+        #print "V1",catalog["banks"][1]
+        #print "V2",catalog["banks"][2]
+        #print "V3",catalog["banks"][3]
+        #print "V4",catalog["banks"][4]
+        #print "V5",catalog["banks"][5]
+        #print "V6",catalog["banks"][6]
+        #print "V7",catalog["banks"][7] #give bank_code, WHY ???
+        access_method_id="06005c38-85ff-470b-b423-2d328301416d"
+        #access_method_id="ae441170-b726-460c-af3c"
+        response = self._request_api(
+        path="/rest/accesses",
+        data={
+            "access_method_id": access_method_id,
+            "save_credentials": True,
+            "credentials" : {
+                "login_id": "toto",
+                "password": "1234"
+            },
+            "consent": {
+                "recurring": True,
+                "period": 90,
+                "scopes": [
+                    "ACCOUNTS"
+                ]
+            }
+        },
+        method="POST")
+        print "++++++++++++++ REPONSE", response
+        
+    def get_accesses(self):
+        accesses = self._request_with_exception("/rest/accesses")
+        return accesses
+
     def get_supported_payment_services(self, country_code):
         """Return a list of supported credit cards and other payment services.
 
