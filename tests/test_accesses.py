@@ -1,13 +1,7 @@
 import pytest
 
-from figo import FigoException
 from figo import FigoSession
-from figo.models import Service
-from figo.models import LoginSettings
 
-#CREDENTIALS = ["figo", "figo"]
-#BANK_CODE = "90090042"
-CLIENT_ERROR = 1000
 CREDENTIALS = { "account_number" : "foobarbaz", "pin" : "12345" }
 CONSENT = { "recurring": True, "period": 90, "scopes": ["ACCOUNTS", "BALANCES", "TRANSACTIONS"], "accounts": [{ "id": "DE67900900424711951500", "currency": "EUR" }] }
 
@@ -27,3 +21,4 @@ def test_get_accesses(access_token):
     figo_session = FigoSession(access_token)
     accesses = figo_session.get_accesses()
     assert len(accesses) > 0
+
