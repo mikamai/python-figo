@@ -90,10 +90,14 @@ def getAccountId(account_or_account_id):
     return account_or_account_id
 
 def filterKeys(object, allowed_keys):
-  if object == None or object == {} or object == {}:
-    return {} if object == None or object == {}
+  if object == None or object == {}:
+    return {}
   else:
-    return dict(zip(allowed_keys, [object[k] for k in allowed_keys]))
+    keys = [key for key in object.keys() if key in allowed_keys ]
+    return dict(zip(keys, [object[key] for key in keys]))
+
+def filterNone(object):
+  return { k: v for k, v in object.items() if v is not None }
 
 class FigoObject(object):
     """A FigoObject has the ability to communicate with the Figo API."""
@@ -694,44 +698,23 @@ class FigoSession(FigoObject):
 
         return catalog
 
-    def add_access(self, credentials):
-        catalog = self.get_catalog()
-        print "CATALOG:"
-        print "V0",catalog["banks"][0]#["access_methods"]["id"]
-        #access_method_id=catalog["access_method_id"]
-        #print "V2",catalog["banks"][0]["access_methods"]
-        #print "V1",catalog["banks"][1]
-        #print "V2",catalog["banks"][2]
-        #print "V3",catalog["banks"][3]
-        #print "V4",catalog["banks"][4]
-        #print "V5",catalog["banks"][5]
-        #print "V6",catalog["banks"][6]
-        #print "V7",catalog["banks"][7] #give bank_code, WHY ???
-        access_method_id="06005c38-85ff-470b-b423-2d328301416d"
-        #access_method_id="ae441170-b726-460c-af3c"
-        response = self._request_api(
-        path="/rest/accesses",
-        data={
+    def add_access(self, access_method_id, credentials, consent):
+        options=filterNone({
             "access_method_id": access_method_id,
-            "save_credentials": True,
-            "credentials" : {
-                "login_id": "toto",
-                "password": "1234"
-            },
-            "consent": {
-                "recurring": True,
-                "period": 90,
-                "scopes": [
-                    "ACCOUNTS"
-                ]
-            }
-        },
-        method="POST")
-        print "++++++++++++++ REPONSE", response
+            "credentials" : credentials,
+            "consent": consent
+        })
+        return self._request_api(
+            path="/rest/accesses",
+            data=options,
+            method="POST"
+        )
         
     def get_accesses(self):
-        accesses = self._request_with_exception("/rest/accesses")
-        return accesses
+        return self._request_with_exception("/rest/accesses")
+
+    def get_access(self, access_id):
+        return self._request_with_exception("/rest/accesses/%s", access_id)
 
     def get_supported_payment_services(self, country_code):
         """Return a list of supported credit cards and other payment services.

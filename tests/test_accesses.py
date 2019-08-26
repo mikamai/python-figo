@@ -5,23 +5,25 @@ from figo import FigoSession
 from figo.models import Service
 from figo.models import LoginSettings
 
-CREDENTIALS = ["figo", "figo"]
-BANK_CODE = "90090042"
+#CREDENTIALS = ["figo", "figo"]
+#BANK_CODE = "90090042"
 CLIENT_ERROR = 1000
+CREDENTIALS = { "account_number" : "foobarbaz", "pin" : "12345" }
+CONSENT = { "recurring": True, "period": 90, "scopes": ["ACCOUNTS", "BALANCES", "TRANSACTIONS"], "accounts": [{ "id": "DE67900900424711951500", "currency": "EUR" }] }
 
 def test_add_access(access_token):
     figo_session = FigoSession(access_token)
-    print "### figo_session.user ###"
-    print figo_session.user
-    figo_session.add_access(CREDENTIALS)
-    assert 1 == 2 #failed, but only to see the prints!
+    access_method_id = "ae441170-b726-460c-af3c-b76756de00e0"
+    response = figo_session.add_access(access_method_id,CREDENTIALS,CONSENT)
+    assert response.has_key("id") == True
+
+def test_add_access_with_wrong_access_id(access_token):
+    figo_session = FigoSession(access_token)
+    access_method_id = "pipo"
+    response = figo_session.add_access(access_method_id,CREDENTIALS,CONSENT)
+    assert response.has_key("error") == True
 
 def test_get_accesses(access_token):
     figo_session = FigoSession(access_token)
-    print "### figo_session.user ###"
-    print figo_session.user
     accesses = figo_session.get_accesses()
-    print "### ACCESSES ###"
-    print accesses
-    assert 1 == 2 #failed, but only to see the prints!
-
+    assert len(accesses) > 0
